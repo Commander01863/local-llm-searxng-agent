@@ -1,6 +1,7 @@
 """
 Configuration settings for the LLM Web Agent.
 """
+import os
 
 # LM Studio API Endpoint (OpenAI-compatible)
 # Ensure this matches your Local LM server (Ollama, LM Studio, Jan, etc.) configuration.
@@ -14,6 +15,13 @@ LOCAL_LM_MODEL = None # Set to None or the actual model identifier string
 # Local SearxNG Instance URL
 # Make sure your SearxNG instance is running and accessible at this address.
 SEARXNG_URL = "http://127.0.0.1:8080"
+
+# Search provider selector: 'searxng' (default) or 'tavily'
+SEARCH_PROVIDER = os.environ.get("SEARCH_PROVIDER", "searxng")
+
+# Tavily API settings (only required when SEARCH_PROVIDER='tavily')
+TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", "")
+TAVILY_MAX_RESULTS = int(os.environ.get("TAVILY_MAX_RESULTS", "5"))
 
 # Keywords to trigger a standard web search (lowercase)
 SEARCH_TRIGGER_KEYWORDS = [
