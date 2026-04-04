@@ -109,6 +109,38 @@ def perform_searxng_search(query: str, search_type: SearchType) -> tuple[str | N
     return text_context, image_urls
 
 
+def perform_tavily_search(query: str) -> tuple[str | None, list[str] | None]:
+    """
+    Queries Tavily for text search results.
+    Returns (text_context, None) — Tavily does not support image search.
+    """
+    text_context = None
+    try:
+        from tavily import TavilyClient
+        client = TavilyClient(api_key=config.TAVILY_API_KEY)
+        response = client.search(
+            query=query,
+            max_results=config.TAVILY_MAX_RESULTS,
+            search_depth="basic",
+        )
+        results = response.get("results", [])
+        if results:
+            text_context = "Web search results:\n"
+            for i, result in enumerate(results):
+                title = result.get("title", "No Title")
+                content = result.get("content", "No Content")
+                url = result.get("url", "No URL")
+                content_cleaned = ' '.join(content.split()) if content else "N/A"
+                text_context += f"{i+1}. Title: {title}\n   Content: {content_cleaned}\n   URL: {url}\n"
+            text_context = text_context.strip()
+        else:
+            print("--- Tavily returned no results. ---")
+    except Exception as e:
+        print(f"ERROR: An error occurred during Tavily search: {e}")
+
+    return text_context, None
+
+
 def remove_think_tags(text: str) -> str:
     """Removes <think>...</think> blocks from text."""
     if not text:
@@ -213,7 +245,11 @@ def main():
             llm_response = None
 
             if search_type != SearchType.NONE:
-                text_search_context, image_urls = perform_searxng_search(user_prompt, search_type)
+                # Route text searches to Tavily when configured; images always use SearxNG
+                if search_type == SearchType.TEXT and config.SEARCH_PROVIDER == "tavily":
+                    text_search_context, image_urls = perform_tavily_search(user_prompt)
+                else:
+                    text_search_context, image_urls = perform_searxng_search(user_prompt, search_type)
 
             if search_type == SearchType.IMAGE:
                 if image_urls:
