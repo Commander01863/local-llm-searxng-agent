@@ -1,6 +1,7 @@
 """
 Configuration settings for the LLM Web Agent.
 """
+import os
 
 # LM Studio API Endpoint (OpenAI-compatible)
 # Ensure this matches your Local LM server (Ollama, LM Studio, Jan, etc.) configuration.
@@ -10,6 +11,13 @@ LOCAL_LM_URL = "http://127.0.0.1:1234/v1/chat/completions" # Adjust port if need
 # Example: LOCAL_LM_MODEL = "llama3:instruct" # For Ollama
 # Example: LOCAL_LM_MODEL = "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF" # For LM Studio
 LOCAL_LM_MODEL = None # Set to None or the actual model identifier string
+
+# Search Provider Selection ('searxng' or 'tavily')
+# Override via SEARCH_PROVIDER environment variable if desired.
+SEARCH_PROVIDER = os.environ.get("SEARCH_PROVIDER", "searxng")
+
+# Tavily API Key (required when SEARCH_PROVIDER='tavily')
+TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", None)
 
 # Local SearxNG Instance URL
 # Make sure your SearxNG instance is running and accessible at this address.

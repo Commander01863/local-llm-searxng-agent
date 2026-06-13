@@ -109,6 +109,72 @@ def perform_searxng_search(query: str, search_type: SearchType) -> tuple[str | N
     return text_context, image_urls
 
 
+def perform_tavily_search(query: str, search_type: SearchType) -> tuple[str | None, list[str] | None]:
+    """
+    Queries the Tavily API.
+    Returns (text_context, image_urls).
+    Image search is not supported by Tavily — returns empty results for image queries.
+    """
+    text_context = None
+    image_urls = None
+
+    if search_type == SearchType.IMAGE:
+        print("--- Tavily does not support image search. Returning empty results. ---")
+        return text_context, image_urls
+
+    try:
+        from tavily import TavilyClient
+
+        api_key = config.TAVILY_API_KEY
+        if not api_key:
+            print("ERROR: TAVILY_API_KEY is not set in config.py or environment.")
+            return text_context, image_urls
+
+        client = TavilyClient(api_key=api_key)
+        response = client.search(
+            query=query,
+            max_results=config.MAX_SEARCH_RESULTS,
+            search_depth="basic",
+        )
+
+        results = response.get("results", [])
+        if results:
+            text_context = "Web search results:\n"
+            for i, result in enumerate(results[:config.MAX_SEARCH_RESULTS]):
+                title = result.get("title", "No Title")
+                content = result.get("content", "No Content")
+                url = result.get("url", "No URL")
+                content_cleaned = ' '.join(content.split()) if content else "N/A"
+                text_context += f"{i+1}. Title: {title}\n   Content: {content_cleaned}\n   URL: {url}\n"
+            text_context = text_context.strip()
+        else:
+            print("--- Tavily returned no results. ---")
+
+    except ImportError:
+        print("ERROR: tavily-python is not installed. Run: pip install tavily-python")
+    except Exception as e:
+        print(f"ERROR: An unexpected error occurred during Tavily search: {e}")
+
+    return text_context, image_urls
+
+
+def perform_search(query: str, search_type: SearchType) -> tuple[str | None, list[str] | None]:
+    """
+    Dispatches to the appropriate search backend based on config.SEARCH_PROVIDER.
+    Falls back to SearxNG for image searches when using Tavily.
+    """
+    provider = config.SEARCH_PROVIDER.lower()
+
+    if provider == "tavily":
+        if search_type == SearchType.IMAGE:
+            # Tavily doesn't support image search; fall back to SearxNG
+            print("--- Tavily does not support image search, falling back to SearxNG. ---")
+            return perform_searxng_search(query, search_type)
+        return perform_tavily_search(query, search_type)
+    else:
+        return perform_searxng_search(query, search_type)
+
+
 def remove_think_tags(text: str) -> str:
     """Removes <think>...</think> blocks from text."""
     if not text:
@@ -213,7 +279,7 @@ def main():
             llm_response = None
 
             if search_type != SearchType.NONE:
-                text_search_context, image_urls = perform_searxng_search(user_prompt, search_type)
+                text_search_context, image_urls = perform_search(user_prompt, search_type)
 
             if search_type == SearchType.IMAGE:
                 if image_urls:
